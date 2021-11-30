@@ -1,7 +1,9 @@
 let express = require('express');
 let router = express.Router();
+let ejs = require('ejs');
 
 let transporter = require("../config/mailer");
+const { request } = require('http');
 
 
 router.use(express.json());
@@ -19,22 +21,34 @@ router.get('/aboutus', (req, res) => {
     res.status(200).render('../views/mainpages/aboutus.ejs');
 });
 
-router.post('/sendemail', async(req, res) => {
+router.post('/sendemail', (req, res) => {
     console.log(req.body);
-    let msg = {
-        from: 'siddharthchandra30@gmail.com', // sender address
-        to: req.body.uemail, // list of receivers
-        subject: "Hello ✔", // Subject line
-        text: "Hello world?", // plain text body
-        html: "<h1>dear client</h1><br><br> <p>we will contact you soon</p><br><br>Thanks and regards<br><br><b>Siddharth chandra</b>", // html body
-    };
-    let info = await transporter.sendMail(msg, (error, data) => {
+    ejs.renderFile('views/emailer/thankyou.ejs', { uname: req.body.uname }, async(error, data) => {
         if (error) {
-            console.log(error);
+            console.log(erorr);
         } else {
-            console.log(data);
+            console.log("success");
+            let msg = {
+
+                from: 'siddharthchandra30@gmail.com', // sender address
+                to: req.body.uemail, // list of receivers
+                subject: "Hello ✔", // Subject line
+                text: "Hello world?", // plain text body
+                html: data // html body
+            };
+            let info = await transporter.sendMail(msg, (error, data) => {
+                if (error) {
+                    console.log(error);
+                } else {
+                    console.log(data);
+                }
+            });
+            console.log("end");
         }
+
     });
+
+
 
     res.status(200).redirect('/');
 });
